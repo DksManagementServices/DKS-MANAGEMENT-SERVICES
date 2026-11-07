@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DKS - FINAL - KYC MULTIPLE + NO PASS TEXT + 2026-27 AY</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<style>
+body{font-family:"Times New Roman",serif;background:#f2f2f2;padding:10px;margin:0;font-weight:bold}
+.container{background:white;max-width:850px;margin:auto;padding:20px}
+.letterhead{text-align:center;border-bottom:3px solid #004A99;padding-bottom:10px;margin-bottom:15px}
+.letterhead h1{margin:5px 0;font-size:22px;color:#004A99;font-weight:bold}
+.letterhead p{margin:2px 0;font-size:12px;font-weight:bold}
+table{width:100%;border-collapse:collapse;margin-bottom:15px}
+td{border:1px solid #000;padding:6px;font-size:13px;vertical-align:top;font-weight:bold}
+.label{width:25%;font-weight:bold;background:#f5f5f5}
+input,textarea,select{width:98%;border:none;border-bottom:1px dotted #000;font-size:13px;outline:none;background:transparent;font-family:"Times New Roman";font-weight:bold}
+select[multiple]{height:90px;border:1px solid #999;background:#fffbe6}
+input[type="file"]{border:none;width:auto;font-size:11px}
+button{background:#004A99;color:white;padding:12px;border:none;width:48%;margin-top:25px;font-size:16px;border-radius:5px;cursor:pointer;font-weight:bold}
+.btn-reset{background:#d32f2f}
+.btn-green{background:#16a34a;width:100%!important;font-size:18px}
+.btn-same{background:#ff9800;width:auto!important;padding:8px 15px;font-size:13px;margin:5px 0}
+.section{background:#d0d0d0;text-align:center;font-weight:bold}
+.page-toggle{background:#eef;padding:10px;margin-bottom:15px;border:1px solid #004A99}
+.photo-section{background:#fff3cd;padding:15px;margin-top:15px;border:1px solid #ffc107}
+.hidden{display:none}
+.itr-data{background:#f0f8ff;padding:15px;margin:10px 0;border:1px solid #004A99}
+.itr-row{display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.itr-row label{width:120px;font-weight:bold;font-size:12px}
+.itr-row input,.itr-row select{width:150px;border:1px solid #ccc;padding:4px;font-weight:bold}
+.person-toggle{margin-bottom:15px;padding:10px;background:#e3f2fd;border:1px solid #1976d2}
+.salary-month-box{border:1px solid #ccc;padding:8px;margin:5px 0;background:#f9f9f9}
+.top-live{background:#d1fae5;padding:12px;border:2px solid #16a34a;border-radius:8px;margin-bottom:15px;text-align:center}
+.ay-photo-box{border:1px dashed #ff9800;padding:8px;margin:5px 0;background:#fff8e1}
+.kyc-photo-box{border:2px dashed #16a34a;padding:10px;margin-top:10px;background:#e8f5e9}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="letterhead">
+<h1>DKS MANAGEMENT SERVICES</h1>
+<p>JOYPUL METHOPARA, DUTTAPUKUR, NORTH 24 PGS, PIN- 743234</p>
+<p>MOBILE: 6290173257 | EMAIL: DKSMERVICE@GMAIL.COM</p>
+</div>
+<div class="top-live">
+<b>DATA INPUT FORM</b><br>
+<span id="gsStatus" style="color:#16a34a;font-weight:bold">Ready</span><br>
+<select id="roleSel" onchange="toggleRole()"><option value="verifier">VERIFIER MODE</option><option value="office">OFFICE MODE</option></select>
+<div id="officeLoadBox" class="hidden" style="margin-top:8px">
+Case ID: <input id="loadCaseId" style="border:1px solid #000;width:60%"> <button type="button" onclick="loadFromGSheet()" style="width:30%;padding:6px">Load</button>
+</div>
+</div>
+<form id="fvrForm">
+<div class="person-toggle">
+<b>REPORT KAR JONNO HOBE SELECT KORUN:</b><br>
+<input type="radio" name="personType" id="onlyApp" value="a" checked onchange="togglePerson()"> ONLY APPLICANT
+<input type="radio" name="personType" id="onlyCo" value="b" onchange="togglePerson()"> ONLY CO-APPLICANT
+<input type="radio" name="personType" id="both" value="c" onchange="togglePerson()"> BOTH APPLICANT AND CO-APPLICANT
+</div>
+<div id="appPages" class="page-toggle">
+<b>APPLICANT - KON PAGE REPORT E THAKBE:</b><br>
+<input type="checkbox" id="pResi" checked> RESIDENCE
+<input type="checkbox" id="pResiTele" checked> RESI TELE
+<input type="checkbox" id="pOffice" checked> OFFICE/BUSINESS
+<input type="checkbox" id="pOfficeTele" checked> OFFICE TELE
+<input type="checkbox" id="pSalary" checked> SALARY SLIP
+<input type="checkbox" id="pForm16" checked> FORM 16
+<input type="checkbox" id="pItr" checked> ITR
+<input type="checkbox" id="pKyc" checked> KYC
+<input type="checkbox" id="pPhoto" checked> SELFIE 2 PAGE MAX 4
+</div>
+<div id="coPages" class="page-toggle hidden">
+<b>CO-APPLICANT - KON PAGE REPORT E THAKBE:</b><br>
+<input type="checkbox" id="pResiCo" checked> RESIDENCE
+<input type="checkbox" id="pResiTeleCo" checked> RESI TELE
+<input type="checkbox" id="pOfficeCo" checked> OFFICE/BUSINESS
+<input type="checkbox" id="pOfficeTeleCo" checked> OFFICE TELE
+<input type="checkbox" id="pSalaryCo" checked> SALARY SLIP
+<input type="checkbox" id="pForm16Co" checked> FORM 16
+<input type="checkbox" id="pItrCo" checked> ITR
+<input type="checkbox" id="pKycCo" checked> KYC
+<input type="checkbox" id="pPhotoCo" checked> SELFIE
+</div>
+<div style="background:#e8f5e9;padding:15px;margin-bottom:15px;border:1px solid green;">
+<b>MASTER DETAILS:</b><br>
+<b>APPLICANT:</b> <input id="mApplicant" onblur="autoFill()" style="width:18%;">
+<b>CO-APPLICANT:</b> <input id="mCoApplicant" onblur="autoFill()" style="width:18%;">
+<b>BRANCH:</b> <input id="mBranch" onblur="autoFill()" style="width:18%;">
+<b>BRANCH CODE:</b> <input id="mBCode" onblur="autoFill()" style="width:18%;"><br>
+<b>TYPE OF LOAN:</b> <select id="mLoanType" onblur="autoFill()" style="width:18%;border:1px solid #ccc"><option value="">SELECT</option><option>PERSONAL LOAN</option><option>CAR LOAN</option><option>HOME LOAN</option><option>EDUCATION LOAN</option><option>HBL TOP UP</option></select>
+<b>OFFICE NAME:</b> <input id="mOName" onblur="autoFill()" style="width:18%;">
+<b>OFFICE ADDRESS:</b> <input id="mOAddr" onblur="autoFill()" style="width:18%;"><br>
+<b>OFFICE CONTACT:</b> <input id="mOCon" onblur="autoFill()" style="width:18%;">
+<b>RESI VERIFIER:</b> <input id="mVResi" onblur="autoFill()" style="width:18%;">
+<b>OFFICE VERIFIER:</b> <input id="mVOff" onblur="autoFill()" style="width:18%;">
+<b>RESI DATE:</b> <input type="date" id="mResiDate" onblur="autoFill()" style="width:18%;">
+<b>OFFICE DATE:</b> <input type="date" id="mOffDate" onblur="autoFill()" style="width:18%;">
+</div>
+<div id="applicantData">
+<div id="resiDiv">
+<table><tr><td colspan="2" class="section">BASIC DETAILS</td></tr><tr><td class="label">NAME OF BRANCH</td><td><input name="Branch"></td></tr><tr><td class="label">BRANCH CODE</td><td><input name="BranchCode"></td></tr><tr><td class="label">NAME OF APPLICANT</td><td><input name="Applicant" readonly></td></tr><tr><td class="label">DATE OF BIRTH</td><td><input type="date" name="DOB"></td></tr><tr><td class="label">TYPE OF LOAN</td><td><input name="LoanType" readonly></td></tr><tr><td class="label">VERIFICATION DATE</td><td><input type="date" name="ResiVerifyDate"></td></tr></table>
+<table><tr><td colspan="2" class="section">RESIDENCE DETAILS</td></tr></table>
+<table style="width:100%;border-collapse:collapse;"><tr><td style="width:50%;vertical-align:top;border:none;padding:0;"><table><tr><td class="label">ADDRESS</td><td><textarea name="Address" rows="2"></textarea></td></tr><tr><td class="label">ADDRESS PROOF</td><td><input name="AddressProof"></td></tr><tr><td class="label">CONTACT</td><td><input name="Contact" oninput="autoFillResiTele()"></td></tr><tr><td class="label">STAY PERIOD</td><td><input name="StayPeriod"></td></tr></table></td><td style="width:50%;vertical-align:top;border:none;padding:0;"><table><tr><td class="label">PERSON MET</td><td><input name="PersonMet" oninput="autoFillResiTele()"></td></tr><tr><td class="label">FAMILY MEMBERS</td><td><input name="Family"></td></tr><tr><td class="label">EARNING MEMBERS</td><td><input name="Earning"></td></tr><tr><td class="label">RESIDENCE STATUS</td><td><select name="ResidenceStatus"><option>OWNED</option><option>RENTED</option><option>PARENTS</option></select></td></tr></table></td></tr></table>
+<table><tr><td colspan="2" class="section">PROPERTY DETAILS & VERIFIER OBSERVATION</td></tr><tr><td class="label">APPROX RENT</td><td><input name="ApproxRent"></td></tr><tr><td class="label">LANDMARK</td><td><input name="Landmark"></td></tr><tr><td class="label">LOCALITY</td><td><input name="Locality"></td></tr><tr><td class="label">TYPE OF ACCOMMODATION</td><td><select name="Accommodation"><option>FLAT</option><option>INDEPENDENT HOUSE</option><option>SLUM</option></select></td></tr><tr><td class="label">INTERIOR</td><td><select name="Interior"><option>GOOD</option><option>AVERAGE</option><option>POOR</option></select></td></tr><tr><td class="label">STANDARD OF LIVING</td><td><select name="StandardLiving"><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select></td></tr><tr><td class="label">VERIFIER NAME</td><td><input name="VerifierResi"></td></tr></table>
+<table><tr><td colspan="2" class="section">RESIDENCE REMARKS</td></tr><tr><td class="label">RESULT</td><td><select name="ResiResult"><option>POSITIVE</option><option>NEGATIVE</option></select></td></tr><tr><td class="label">REMARKS</td><td><textarea name="ResiRemark" rows="3">I VISITED AT THE PRESENT RESIDENCE ADDRESS MENTIONED IN PROVIDED ................. , THERE I MET WITH ...................... & HE CONFIRMED ............... PRESENT ADDRESS AS CORRECT & NEIGHBOUR'S FEEDBACK IS SATISFACTORY HENCE THE RESIDENCE REPORT IS POSITIVE.</textarea></td></tr></table>
+</div>
+<div id="resiTeleDiv"><table><tr><td colspan="2" class="section">RESIDENCE TELE VERIFICATION</td></tr><tr><td class="label">NAME OF BRANCH</td><td><input name="BranchTele"></td></tr><tr><td class="label">APPLICANT</td><td><input name="ApplicantTele" readonly></td></tr><tr><td class="label">CONTACT NUMBER</td><td><input name="ResiTeleNo"></td></tr><tr><td class="label">PERSON SPOKE TO</td><td><input name="ResiTelePerson"></td></tr><tr><td class="label">RELATION</td><td><input name="ResiTeleRelation"></td></tr><tr><td class="label">VERIFICATION DATE</td><td><input type="date" name="ResiTeleDate"></td></tr><tr><td class="label">VERIFIER</td><td><input name="VerifierResiTele"></td></tr><tr><td class="label">REMARKS</td><td><textarea name="ResiTeleRemark" rows="2">RESIDENCE TELE CONFIRMAION HAS BEEN DONE</textarea></td></tr><tr><td class="label">RESULT</td><td><select name="ResiTeleResult"><option>POSITIVE</option><option>NEGATIVE</option></select></td></tr></table></div>
+<div id="officeDiv"><table><tr><td colspan="2" class="section">BASIC DETAILS</td></tr><tr><td class="label">NAME OF BRANCH</td><td><input name="Branch2"></td></tr><tr><td class="label">BRANCH CODE</td><td><input name="BranchCode2"></td></tr><tr><td class="label">APPLICANT</td><td><input name="Applicant2" readonly></td></tr><tr><td class="label">TYPE OF LOAN</td><td><input name="LoanType2" readonly></td></tr><tr><td class="label">VERIFICATION DATE</td><td><input type="date" name="OfficeVerifyDate"></td></tr></table>
+<table><tr><td colspan="2" class="section">OFFICE/BUSINESS DETAILS</td></tr></table>
+<table style="width:100%;border-collapse:collapse;"><tr><td style="width:50%;vertical-align:top;border:none;padding:0;"><table><tr><td class="label">OFFICE NAME</td><td><input name="OfficeName" readonly></td></tr><tr><td class="label">OFFICE ADDRESS</td><td><textarea name="OfficeAddress" rows="2" readonly></textarea></td></tr><tr><td class="label">DESIGNATION</td><td><input name="Designation"></td></tr><tr><td class="label">NATURE OF SERVICE/BUSINESS</td><td><input name="Nature"></td></tr><tr><td class="label">DOJ</td><td><input type="date" name="DOJ"></td></tr></table></td><td style="width:50%;vertical-align:top;border:none;padding:0;"><table><tr><td class="label">PERSON MET</td><td><input name="OfficePerson" oninput="autoFillOfficeTele()"></td></tr><tr><td class="label">CONTACT</td><td><input name="OfficeContact" oninput="autoFillOfficeTele()"></td></tr><tr><td class="label">CO BOARD/BADGE</td><td><select name="CoBoard"><option>YES</option><option>NO</option></select></td></tr><tr><td class="label">TYPE OF EMPLOYER</td><td><select name="EmpType"><option>GOVT. SERVICE</option><option>PVT. SERVICE</option><option>OWN BUSINESS</option></select></td></tr></table></td></tr></table>
+<table><tr><td colspan="2" class="section">OFFICE OBSERVATION</td></tr><tr><td class="label">YEARS OF ESTABLISHMENT</td><td><input name="YearEst"></td></tr><tr><td class="label">NO OF EMPLOYEES</td><td><input name="NoEmp"></td></tr><tr><td class="label">OFFICE AMBIANCE</td><td><select name="Ambiance"><option>POOR</option><option>GOOD</option><option>EXCELLENT</option></select></td></tr><tr><td class="label">TERM OF EMPLOYMENT</td><td><select name="EmpTerm"><option>PERMANENT</option><option>CONTRACTUAL</option></select></td></tr><tr><td class="label">RESULT</td><td><select name="OfficeResult"><option>POSITIVE</option><option>NEGATIVE</option></select></td></tr></table>
+<table><tr><td colspan="2" class="section">VERIFIER DETAILS</td></tr><tr><td class="label">VERIFIER NAME</td><td><input name="VerifierOffice"></td></tr><tr><td class="label">VERIFIER REMARKS</td><td><textarea name="OfficeRemark" rows="3">I VISITED THE PROVIDED OFFICE ADDRESS & I MET WITH A ........... WHO CONFIRMED APPLICANT'S OFFICE ADDRESS. THE APPLICANT IS WORKING............................ AND WITH GOOD REPUTATION.</textarea></td></tr></table>
+</div>
+<div id="officeTeleDiv"><table><tr><td colspan="2" class="section">OFFICE TELE VERIFICATION</td></tr><tr><td class="label">NAME OF BRANCH</td><td><input name="BranchTele2"></td></tr><tr><td class="label">APPLICANT</td><td><input name="ApplicantTele2" readonly></td></tr><tr><td class="label">OFFICE CONTACT NUMBER</td><td><input name="OfficeTeleNo"></td></tr><tr><td class="label">PERSON SPOKE TO</td><td><input name="OfficeTelePerson"></td></tr><tr><td class="label">DESIGNATION</td><td><input name="OfficeTeleDesig"></td></tr><tr><td class="label">VERIFICATION DATE</td><td><input type="date" name="OfficeTeleDate"></td></tr><tr><td class="label">VERIFIER</td><td><input name="VerifierOfficeTele"></td></tr><tr><td class="label">REMARKS</td><td><textarea name="OfficeTeleRemark" rows="2">OFFICE TELE VERIFICATION HAS BEEN DONE</textarea></td></tr><tr><td class="label">RESULT</td><td><select name="OfficeTeleResult"><option>POSITIVE</option><option>NEGATIVE</option></select></td></tr></table></div>
+<div id="salaryDiv"><table><tr><td colspan="2" class="section">APPLICANT SALARY SLIP VERIFICATION</td></tr><tr><td class="label">NAME OF BRANCH</td><td><input name="BranchSal"></td></tr><tr><td class="label">APPLICANT</td><td><input name="ApplicantSal" readonly></td></tr><tr><td class="label">OFFICE NAME</td><td><input name="SalaryOffice" readonly></td></tr><tr><td class="label">MONTHS - 2026 & 2027</td><td><select id="salaryMonths" multiple onchange="generateSalaryInputs()"><option value="JAN-2026">JAN-2026</option><option value="FEB-2026">FEB-2026</option><option value="MAR-2026">MAR-2026</option><option value="APR-2026">APR-2026</option><option value="MAY-2026">MAY-2026</option><option value="JUN-2026">JUN-2026</option><option value="JUL-2026">JUL-2026</option><option value="AUG-2026">AUG-2026</option><option value="SEP-2026">SEP-2026</option><option value="OCT-2026">OCT-2026</option><option value="NOV-2026">NOV-2026</option><option value="DEC-2026">DEC-2026</option><option value="JAN-2027">JAN-2027</option><option value="FEB-2027">FEB-2027</option><option value="MAR-2027">MAR-2027</option><option value="APR-2027">APR-2027</option><option value="MAY-2027">MAY-2027</option><option value="JUN-2027">JUN-2027</option></select></td></tr></table><div id="salaryMonthInputs"></div><table><tr><td class="label">VERIFICATION DATE</td><td><input type="date" name="SalaryDate"></td></tr><tr><td class="label">VERIFIER</td><td><input name="VerifierSalary"></td></tr><tr><td class="label">REMARKS</td><td><textarea name="SalaryRemark" rows="2">SALARY SLIP VERIFIED AND FOUND OK</textarea></td></tr></table></div>
+<div id="form16Div"><table><tr><td colspan="2" class="section">FORM 16 VERIFICATION - AY 2023-24 to 2026-27 ADDED</td></tr><tr><td class="label">APPLICANT</td><td><input name="Applicant4" readonly></td></tr><tr><td class="label">AY SELECT</td><td><input type="checkbox" id="form16Ay1" onchange="toggleForm16Ay()"> 2023-24 <input type="checkbox" id="form16Ay2" onchange="toggleForm16Ay()"> 2024-25 <input type="checkbox" id="form16Ay3" onchange="toggleForm16Ay()"> 2025-26 <input type="checkbox" id="form16Ay4" onchange="toggleForm16Ay()"> 2026-27</td></tr></table><div id="form16AyInputs" style="background:#f0f8ff;padding:10px;border:1px solid #004A99"></div></div>
+<div id="itrDivNew" class="itr-data"><h4>ITR VERIFICATION - AY 2026-27 ADDED</h4><table><tr><td colspan="2" class="section">ITR VERIFICATION</td></tr><tr><td class="label">NAME OF BRANCH</td><td><input name="BranchItr"></td></tr><tr><td class="label">APPLICANT</td><td><input name="ApplicantItr" readonly></td></tr><tr><td class="label">PAN</td><td><input name="ItrPAN"></td></tr></table><div style="background:#fffbe6;padding:10px;border:1px dashed #ffa500;margin-bottom:10px"><b>ITR AY SELECT:</b><br><input type="checkbox" id="itrAy1" onchange="toggleItrAyNew()"> 2023-24 <input type="checkbox" id="itrAy2" onchange="toggleItrAyNew()"> 2024-25 <input type="checkbox" id="itrAy3" onchange="toggleItrAyNew()"> 2025-26 <input type="checkbox" id="itrAy4" onchange="toggleItrAyNew()"> 2026-27</div><div id="itrAyInputsNew"></div><table><tr><td class="label">VERIFIER</td><td><input name="VerifierITR2"></td></tr><tr><td class="label">RESULT</td><td><select name="ItrResult"><option>OK</option><option>NOT OK</option><option>NA</option></select></td></tr><tr><td class="label">REMARKS</td><td><textarea name="ItrRemark" rows="2">ITR VERIFIED FROM INCOME TAX PORTAL</textarea></td></tr></table></div>
+<div id="kycDiv"><table><tr><td colspan="4" class="section">KYC DETAILS - APPLICANT</td></tr><tr><td class="label">APPLICANT</td><td colspan="3"><input name="Applicant5" readonly></td></tr><tr><td class="label">AADHAAR NUMBER</td><td><input name="Aadhaar"></td><td class="label">RESULT</td><td><select name="AadhaarStatus"><option>OK</option><option>NOT OK</option><option>NA</option></select></td></tr><tr><td class="label">PAN NUMBER</td><td><input name="PAN"></td><td class="label">RESULT</td><td><select name="PANStatus"><option>OK</option><option>NOT OK</option><option>NA</option></select></td></tr><tr><td class="label">VOTER ID</td><td><input name="Voter"></td><td class="label">RESULT</td><td><select name="VoterStatus"><option>OK</option><option>NOT OK</option><option>NA</option></select></td></tr><tr><td class="label">VERIFIER</td><td><input name="VerifierKYC"></td><td class="label">VERIFICATION DATE</td><td><input type="date" name="KYCDate"></td></tr></table><div class="kyc-photo-box"><b>APPLICANT KYC MULTIPLE PHOTO ATTACH - NEW:</b> <input type="file" id="kycFilesApplicant" accept="image/*" multiple> <span id="kycCountApplicant"></span></div></div>
+</div>
+<div id="coApplicantData" class="hidden">
+<h3 style="color:#1976d2;text-align:center">CO-APPLICANT DETAILS <button type="button" class="btn-same" onclick="copyResiToCo()">🔁 SAME AS APPLICANT - ONE CLICK</button></h3>
+<div id="resiDivCo">
+<table><tr><td colspan="2" class="section">BASIC DETAILS</td></tr><tr><td class="label">NAME OF BRANCH</td><td><input name="BranchCo"></td></tr><tr><td class="label">BRANCH CODE</td><td><input name="BranchCodeCo"></td></tr><tr><td class="label">NAME OF CO-APPLICANT</td><td><input name="ApplicantCo" readonly></td></tr><tr><td class="label">DATE OF BIRTH</td><td><input type="date" name="DOBCo"></td></tr><tr><td class="label">TYPE OF LOAN</td><td><input name="LoanTypeCo" readonly></td></tr><tr><td class="label">VERIFICATION DATE</td><td><input type="date" name="ResiVerifyDateCo"></td></tr></table>
+<table><tr><td colspan="2" class="section">RESIDENCE DETAILS <button type="button" class="btn-same" onclick="copyResiToCo()">SAME AS APPLICANT</button></td></tr></table>
+<table style="width:100%;border-collapse:collapse;"><tr><td style="width:50%;vertical-align:top;border:none;padding:0;"><table><tr><td class="label">ADDRESS</td><td><textarea name="AddressCo" rows="2"></textarea></td></tr><tr><td class="label">ADDRESS PROOF</td><td><input name="AddressProofCo"></td></tr><tr><td class="label">CONTACT</td><td><input name="ContactCo" oninput="autoFillResiTele()"></td></tr><tr><td class="label">STAY PERIOD</td><td><input name="StayPeriodCo"></td></tr></table></td><td style="width:50%;vertical-align:top;border:none;padding:0;"><table><tr><td class="label">PERSON MET</td><td><input name="PersonMetCo" oninput="autoFillResiTele()"></td></tr><tr><td class="label">FAMILY MEMBERS</td><td><input name="FamilyCo"></td></tr><tr><td class="label">EARNING MEMBERS</td><td><input name="EarningCo"></td></tr><tr><td class="label">RESIDENCE STATUS</td><td><select name="ResidenceStatusCo"><option>OWNED</option><option>RENTED</option><option>PARENTS</option></select></td></tr></table></td></tr></table>
+<table><tr><td colspan="2" class="section">PROPERTY DETAILS & VERIFIER OBSERVATION</td></tr><tr><td class="label">APPROX RENT</td><td><input name="ApproxRentCo"></td></tr><tr><td class="label">LANDMARK</td><td><input name="LandmarkCo"></td></tr><tr><td class="label">LOCALITY</td><td><input name="LocalityCo"></td></tr><tr><td class="label">TYPE OF ACCOMMODATION</td><td><select name="AccommodationCo"><option>FLAT</option><option>INDEPENDENT HOUSE</option><option>SLUM</option></select></td></tr><tr><td class="label">INTERIOR</td><td><select name="InteriorCo"><option>GOOD</option><option>AVERAGE</option><option>POOR</option></select></td></tr><tr><td class="label">STANDARD OF LIVING</td><td><select name="StandardLivingCo"><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select></td></tr><tr><td class="label">VERIFIER NAME</td><td><input name="VerifierResiCo"></td></tr></table>
+<table><tr><td colspan="2" class="section">RESIDENCE REMARKS</td></tr><tr><td class="label">RESULT</td><td><select name="ResiResultCo"><option>POSITIVE</option><option>NEGATIVE</option></select></td></tr><tr><td class="label">REMARKS</td><td><textarea name="ResiRemarkCo" rows="3">I VISITED AT THE PRESENT RESIDENCE ADDRESS MENTIONED IN PROVIDED ................. , THERE I MET WITH ...................... & HE CONFIRMED ............... PRESENT ADDRESS AS CORRECT & NEIGHBOUR'S FEEDBACK IS SATISFACTORY HENCE THE RESIDENCE REPORT IS POSITIVE.</textarea></td></tr></table>
+</div>
+<div id="resiTeleDivCo"><table><tr><td colspan="2" class="section">RESIDENCE TELE VERIFICATION</td></tr><tr><td class="label">NAME OF BRANCH</td><td><input name="BranchTeleCo"></td></tr><tr><td class="label">CO-APPLICANT</td><td><input name="ApplicantTeleCo" readonly></td></tr><tr><td class="label">CONTACT NUMBER</td><td><input name="ResiTeleNoCo"></td></tr><tr><td class="label">PERSON SPOKE TO</td><td><input name="ResiTelePersonCo"></td></tr><tr><td class="label">RELATION</td><td><input name="ResiTeleRelationCo"></td></tr><tr><td class="label">VERIFICATION DATE</td><td><input type="date" name="ResiTeleDateCo"></td></tr><tr><td class="label">VERIFIER</td><td><input name="VerifierResiTeleCo"></td></tr><tr><td class="label">REMARKS</td><td><textarea name="ResiTeleRemarkCo" rows="2">RESIDENCE TELE CONFIRMAION HAS BEEN DONE</textarea></td></tr><tr><td class="label">RESULT</td><td><select name="ResiTeleResultCo"><option>POSITIVE</option><option>NEGATIVE</option></select></td></tr></table></div>
+<div id="officeDivCo"><table><tr><td colspan="2" class="section">BASIC DETAILS</td></tr><tr><td class="label">NAME OF BRANCH</td><td><input name="Branch2Co"></td></tr><tr><td class="label">BRANCH CODE</td><td><input name="BranchCode2Co"></td></tr><tr><td class="label">CO-APPLICANT</td><td><input name="Applicant2Co" readonly></td></tr><tr><td class="label">TYPE OF LOAN</td><td><input name="LoanType2Co" readonly></td></tr><tr><td class="label">VERIFICATION DATE</td><td><input type="date" name="OfficeVerifyDateCo"></td></tr></table><table><tr><td colspan="2" class="section">OFFICE/BUSINESS DETAILS</td></tr></table><table style="width:100%;border-collapse:collapse;"><tr><td style="width:50%;vertical-align:top;border:none;padding:0;"><table><tr><td class="label">OFFICE NAME</td><td><input name="OfficeNameCo" readonly></td></tr><tr><td class="label">OFFICE ADDRESS</td><td><textarea name="OfficeAddressCo" rows="2" readonly></textarea></td></tr><tr><td class="label">DESIGNATION</td><td><input name="DesignationCo"></td></tr><tr><td class="label">NATURE OF SERVICE/BUSINESS</td><td><input name="NatureCo"></td></tr><tr><td class="label">DOJ</td><td><input type="date" name="DOJCo"></td></tr></table></td><td style="width:50%;vertical-align:top;border:none;padding:0;"><table><tr><td class="label">PERSON MET</td><td><input name="OfficePersonCo" oninput="autoFillOfficeTele()"></td></tr><tr><td class="label">CONTACT</td><td><input name="OfficeContactCo" oninput="autoFillOfficeTele()"></td></tr><tr><td class="label">CO BOARD/BADGE</td><td><select name="CoBoardCo"><option>YES</option><option>NO</option></select></td></tr><tr><td class="label">TYPE OF EMPLOYER</td><td><select name="EmpTypeCo"><option>GOVT. SERVICE</option><option>PVT. SERVICE</option><option>OWN BUSINESS</option></select></td></tr></table></td></tr></table><table><tr><td colspan="2" class="section">OFFICE OBSERVATION</td></tr><tr><td class="label">YEARS OF ESTABLISHMENT</td><td><input name="YearEstCo"></td></tr><tr><td class="label">NO OF EMPLOYEES</td><td><input name="NoEmpCo"></td></tr><tr><td class="label">OFFICE AMBIANCE</td><td><select name="AmbianceCo"><option>POOR</option><option>GOOD</option><option>EXCELLENT</option></select></td></tr><tr><td class="label">TERM OF EMPLOYMENT</td><td><select name="EmpTermCo"><option>PERMANENT</option><option>CONTRACTUAL</option></select></td></tr><tr><td class="label">RESULT</td><td><select name="OfficeResultCo"><option>POSITIVE</option><option>NEGATIVE</option></select></td></tr></table><table><tr><td colspan="2" class="section">VERIFIER DETAILS</td></tr><tr><td class="label">VERIFIER NAME</td><td><input name="VerifierOfficeCo"></td></tr><tr><td class="label">VERIFIER REMARKS</td><td><textarea name="OfficeRemarkCo" rows="3">I VISITED THE PROVIDED OFFICE ADDRESS & I MET WITH A ........... WHO CONFIRMED APPLICANT'S OFFICE ADDRESS. THE APPLICANT IS WORKING............................ AND WITH GOOD REPUTATION.</textarea></td></tr></table></div>
+<div id="officeTeleDivCo"><table><tr><td colspan="2" class="section">OFFICE TELE VERIFICATION</td></tr><tr><td class="label">NAME OF BRANCH</td><td><input name="BranchTele2Co"></td></tr><tr><td class="label">CO-APPLICANT</td><td><input name="ApplicantTele2Co" readonly></td></tr><tr><td class="label">OFFICE CONTACT NUMBER</td><td><input name="OfficeTeleNoCo"></td></tr><tr><td class="label">PERSON SPOKE TO</td><td><input name="OfficeTelePersonCo"></td></tr><tr><td class="label">DESIGNATION</td><td><input name="OfficeTeleDesigCo"></td></tr><tr><td class="label">VERIFICATION DATE</td><td><input type="date" name="OfficeTeleDateCo"></td></tr><tr><td class="label">VERIFIER</td><td><input name="VerifierOfficeTeleCo"></td></tr><tr><td class="label">REMARKS</td><td><textarea name="OfficeTeleRemarkCo" rows="2">OFFICE TELE VERIFICATION HAS BEEN DONE</textarea></td></tr><tr><td class="label">RESULT</td><td><select name="OfficeTeleResultCo"><option>POSITIVE</option><option>NEGATIVE</option></select></td></tr></table></div>
+<div id="salaryDivCo"><table><tr><td colspan="2" class="section">APPLICANT SALARY SLIP VERIFICATION</td></tr><tr><td class="label">NAME OF BRANCH</td><td><input name="BranchSalCo"></td></tr><tr><td class="label">CO-APPLICANT</td><td><input name="ApplicantSalCo" readonly></td></tr><tr><td class="label">OFFICE NAME</td><td><input name="SalaryOfficeCo" readonly></td></tr><tr><td class="label">MONTHS - 2026 & 2027</td><td><select id="salaryMonthsCo" multiple onchange="generateSalaryInputsCo()"><option value="JAN-2026">JAN-2026</option><option value="FEB-2026">FEB-2026</option><option value="MAR-2026">MAR-2026</option><option value="APR-2026">APR-2026</option><option value="MAY-2026">MAY-2026</option><option value="JUN-2026">JUN-2026</option><option value="JUL-2026">JUL-2026</option><option value="AUG-2026">AUG-2026</option><option value="SEP-2026">SEP-2026</option><option value="OCT-2026">OCT-2026</option><option value="NOV-2026">NOV-2026</option><option value="DEC-2026">DEC-2026</option><option value="JAN-2027">JAN-2027</option><option value="FEB-2027">FEB-2027</option><option value="MAR-2027">MAR-2027</option><option value="APR-2027">APR-2027</option><option value="MAY-2027">MAY-2027</option><option value="JUN-2027">JUN-2027</option></select></td></tr></table><div id="salaryMonthInputsCo"></div><table><tr><td class="label">VERIFICATION DATE</td><td><input type="date" name="SalaryDateCo"></td></tr><tr><td class="label">VERIFIER</td><td><input name="VerifierSalaryCo"></td></tr><tr><td class="label">REMARKS</td><td><textarea name="SalaryRemarkCo" rows="2">SALARY SLIP VERIFIED AND FOUND OK</textarea></td></tr></table></div>
+<div id="form16DivCo"><table><tr><td colspan="2" class="section">FORM 16 VERIFICATION - CO-APPLICANT - 2026-27 ADDED</td></tr><tr><td class="label">CO-APPLICANT</td><td><input name="Applicant4Co" readonly></td></tr><tr><td class="label">AY SELECT</td><td><input type="checkbox" id="form16AyCo1" onchange="toggleForm16AyCo()"> 2023-24 <input type="checkbox" id="form16AyCo2" onchange="toggleForm16AyCo()"> 2024-25 <input type="checkbox" id="form16AyCo3" onchange="toggleForm16AyCo()"> 2025-26 <input type="checkbox" id="form16AyCo4" onchange="toggleForm16AyCo()"> 2026-27</td></tr></table><div id="form16AyInputsCo" style="background:#f0f8ff;padding:10px;border:1px solid #004A99"></div></div>
+<div id="itrDivCo" class="itr-data"><h4>ITR VERIFICATION - CO-APPLICANT - 2026-27 ADDED</h4><table><tr><td colspan="2" class="section">ITR VERIFICATION</td></tr><tr><td class="label">NAME OF BRANCH</td><td><input name="BranchItrCo"></td></tr><tr><td class="label">CO-APPLICANT</td><td><input name="ApplicantItrCo" readonly></td></tr><tr><td class="label">PAN</td><td><input name="ItrPANCo"></td></tr></table><div style="background:#fffbe6;padding:10px;border:1px dashed #ffa500;margin-bottom:10px"><b>ITR AY SELECT:</b><br><input type="checkbox" id="itrAyCo1" onchange="toggleItrAyCo()"> 2023-24 <input type="checkbox" id="itrAyCo2" onchange="toggleItrAyCo()"> 2024-25 <input type="checkbox" id="itrAyCo3" onchange="toggleItrAyCo()"> 2025-26 <input type="checkbox" id="itrAyCo4" onchange="toggleItrAyCo()"> 2026-27</div><div id="itrAyInputsCo"></div></div>
+<div id="kycDivCo"><table><tr><td colspan="4" class="section">KYC DETAILS - CO-APPLICANT</td></tr><tr><td class="label">CO-APPLICANT</td><td colspan="3"><input name="Applicant5Co" readonly></td></tr><tr><td class="label">AADHAAR NUMBER</td><td><input name="AadhaarCo"></td><td class="label">RESULT</td><td><select name="AadhaarStatusCo"><option>OK</option><option>NOT OK</option><option>NA</option></select></td></tr><tr><td class="label">PAN NUMBER</td><td><input name="PANCo"></td><td class="label">RESULT</td><td><select name="PANStatusCo"><option>OK</option><option>NOT OK</option><option>NA</option></select></td></tr><tr><td class="label">VOTER ID</td><td><input name="VoterCo"></td><td class="label">RESULT</td><td><select name="VoterStatusCo"><option>OK</option><option>NOT OK</option><option>NA</option></select></td></tr><tr><td class="label">VERIFIER</td><td><input name="VerifierKYCCo"></td><td class="label">VERIFICATION DATE</td><td><input type="date" name="KYCDateCo"></td></tr></table><div class="kyc-photo-box"><b>CO-APPLICANT KYC MULTIPLE PHOTO ATTACH - NEW:</b> <input type="file" id="kycFilesCo" accept="image/*" multiple> <span id="kycCountCo"></span></div></div>
+</div>
+<div class="photo-section">
+<b>PHOTO ATTACH - PROTTEKTA PAGE ER UPORE LEFT + RIGHT SIDE PHOTO</b><br>
+Top Left <input type="file" id="commonTop" accept="image/*"> Top Right <input type="file" id="commonTopRight" accept="image/*"> Bottom <input type="file" id="commonBot" accept="image/*"><br>
+Selfie 8ta - 2 page e 4ta kore:<br>
+<input type="file" id="ex1" style="width:23%"><input type="file" id="ex2" style="width:23%"><input type="file" id="ex3" style="width:23%"><input type="file" id="ex4" style="width:23%"><br>
+<input type="file" id="ex5" style="width:23%"><input type="file" id="ex6" style="width:23%"><input type="file" id="ex7" style="width:23%"><input type="file" id="ex8" style="width:23%">
+</div>
+<button type="button" class="btn btn-green" id="submitBtn" onclick="submitToGoogleSheet()">☁️ SUBMIT TO OFFICE - GOOGLE SHEET E JABE</button>
+<button type="button" class="btn" id="pdfBtn" onclick="generatePDF()">📄 DOWNLOAD PDF REPORT - OFFICE ONLY</button>
+<button type="button" class="btn btn-reset" onclick="if(confirm('Form Reset Korben?')) location.reload()">🔄 RESET FORM</button>
+</form>
+</div>
+<script>
+const{jsPDF}=window.jspdf;
+let commonTop="", commonTopRight="", commonBot=""; let kycPhotosApplicant=[], kycPhotosCo=[], extraPhotos=[], form16Photos=[], form16PhotosCo=[], itrAyPhotos={}, itrAyPhotosCo={};
+let form16AyYears=['2023-24','2024-25','2025-26','2026-27'];
+let itrAyYears=['2023-24','2024-25','2025-26','2026-27'];
+let currentPerson='a';
+const GS_URL = "https://script.google.com/macros/s/AKfycbx5gaRx61kTxLvvOX2T_yMveNq9tmMsfKlBMw_fltjSZWOLf0PvoX2B38_sBcfetW2a/exec";
+const OFFICE_PASSWORD = "DKS@2024";
+function toggleRole(){
+  let r=document.getElementById('roleSel').value;
+  let pdfBtn=document.getElementById('pdfBtn');
+  let officeBox=document.getElementById('officeLoadBox');
+  if(r==='verifier'){ pdfBtn.classList.add('hidden'); officeBox.classList.add('hidden'); document.getElementById('gsStatus').innerText='VERIFIER MODE'; }
+  else{ let pass=prompt("OFFICE MODE PASSWORD DAO:"); if(pass!==OFFICE_PASSWORD){ alert("❌ WRONG PASSWORD!"); document.getElementById('roleSel').value='verifier'; pdfBtn.classList.add('hidden'); officeBox.classList.add('hidden'); return; } pdfBtn.classList.remove('hidden'); officeBox.classList.remove('hidden'); document.getElementById('gsStatus').innerText='OFFICE MODE - Password OK'; }
+}
+function copyResiToCo(){
+  const map=[['Branch','BranchCo'],['BranchCode','BranchCodeCo'],['DOB','DOBCo'],['Address','AddressCo'],['AddressProof','AddressProofCo'],['Contact','ContactCo'],['StayPeriod','StayPeriodCo'],['PersonMet','PersonMetCo'],['Family','FamilyCo'],['Earning','EarningCo'],['ResidenceStatus','ResidenceStatusCo'],['ApproxRent','ApproxRentCo'],['Landmark','LandmarkCo'],['Locality','LocalityCo'],['Accommodation','AccommodationCo'],['Interior','InteriorCo'],['StandardLiving','StandardLivingCo'],['VerifierResi','VerifierResiCo'],['ResiResult','ResiResultCo'],['ResiRemark','ResiRemarkCo'],['ResiVerifyDate','ResiVerifyDateCo']];
+  map.forEach(([from,to])=>{ let f=document.getElementsByName(from)[0]; let t=document.getElementsByName(to)[0]; if(f && t){ t.value=f.value; } });
+  autoFill(); autoFillResiTele();
+  alert('✅ Applicant er Residence Details Co-Applicant e copy hoye geche!');
+}
+async function submitToGoogleSheet(){
+  try{
+    let f=document.getElementById('fvrForm'); let fd=new FormData(f); let obj={};
+    fd.forEach((v,k)=>{ obj[k]=v; });
+    obj.mApplicant=document.getElementById('mApplicant').value;
+    obj.mCoApplicant=document.getElementById('mCoApplicant').value;
+    obj.mBranch=document.getElementById('mBranch').value;
+    obj.mOName=document.getElementById('mOName').value;
+    obj.mOAddr=document.getElementById('mOAddr').value;
+    let pt=document.querySelector('input[name="personType"]:checked');
+    obj.personType = pt ? pt.value : 'a';
+    let pageIds=['pResi','pResiTele','pOffice','pOfficeTele','pSalary','pForm16','pItr','pKyc','pPhoto','pResiCo','pResiTeleCo','pOfficeCo','pOfficeTeleCo','pSalaryCo','pForm16Co','pItrCo','pKycCo','pPhotoCo','form16Ay1','form16Ay2','form16Ay3','form16Ay4','form16AyCo1','form16AyCo2','form16AyCo3','form16AyCo4','itrAy1','itrAy2','itrAy3','itrAy4','itrAyCo1','itrAyCo2','itrAyCo3','itrAyCo4'];
+    obj.pageChecks={}; pageIds.forEach(id=>{ let el=document.getElementById(id); if(el) obj.pageChecks[id]=el.checked; });
+    obj.salaryMonths=[...document.getElementById('salaryMonths').selectedOptions].map(o=>o.value);
+    obj.salaryMonthsCo=[...document.getElementById('salaryMonthsCo').selectedOptions].map(o=>o.value);
+    obj.caseId=(obj.mApplicant||obj.mCoApplicant||'DKS')+'_'+Date.now();
+    obj.fullJson=JSON.stringify(obj);
+    if(!obj.mApplicant && !obj.mCoApplicant){ alert('APPLICANT NAME likho'); return; }
+    document.getElementById('gsStatus').innerText='⏳ Sending...';
+    await fetch(GS_URL, {method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(obj)});
+    document.getElementById('gsStatus').innerText='✅ Sheet e geche! ID:'+obj.caseId;
+    alert('✅ SUCCESS! Sheet e chole geche\nCase ID: '+obj.caseId);
+  }catch(e){ alert('Error:'+e.message); }
+}
+async function loadFromGSheet(){
+  let caseId=document.getElementById('loadCaseId').value;
+  if(!caseId){ alert('Case ID dao'); return; }
+  try{
+    let res=await fetch(GS_URL+'?action=get&caseId='+encodeURIComponent(caseId));
+    let data=await res.json();
+    if(data && data.fullJson){
+      let obj=JSON.parse(data.fullJson);
+      if(obj.mApplicant) document.getElementById('mApplicant').value=obj.mApplicant;
+      if(obj.mCoApplicant) document.getElementById('mCoApplicant').value=obj.mCoApplicant;
+      if(obj.mBranch) document.getElementById('mBranch').value=obj.mBranch;
+      if(obj.mOName) document.getElementById('mOName').value=obj.mOName;
+      if(obj.mOAddr) document.getElementById('mOAddr').value=obj.mOAddr;
+      if(obj.personType){
+        document.querySelectorAll('input[name="personType"]').forEach(r=>r.checked=false);
+        if(obj.personType=='a') document.getElementById('onlyApp').checked=true;
+        else if(obj.personType=='b') document.getElementById('onlyCo').checked=true;
+        else if(obj.personType=='c') document.getElementById('both').checked=true;
+        currentPerson=obj.personType;
+      }
+      if(obj.pageChecks){ Object.keys(obj.pageChecks).forEach(id=>{ let el=document.getElementById(id); if(el) el.checked=obj.pageChecks[id]; }); }
+      if(obj.salaryMonths){ let sel=document.getElementById('salaryMonths'); if(sel){ [...sel.options].forEach(o=>{ o.selected=obj.salaryMonths.includes(o.value); }); } }
+      if(obj.salaryMonthsCo){ let selCo=document.getElementById('salaryMonthsCo'); if(selCo){ [...selCo.options].forEach(o=>{ o.selected=obj.salaryMonthsCo.includes(o.value); }); } }
+      autoFill(); togglePerson();
+      generateSalaryInputs(); generateSalaryInputsCo(); toggleForm16Ay(); toggleForm16AyCo(); toggleItrAyNew(); toggleItrAyCo();
+      setTimeout(()=>{
+        for(let k in obj){ if(['pageChecks','salaryMonths','salaryMonthsCo','personType','fullJson','caseId','mApplicant','mCoApplicant','mBranch','mOName','mOAddr'].includes(k)) continue; let els=document.getElementsByName(k); if(els[0]) els[0].value=obj[k]; }
+        try{
+          let full=JSON.parse(obj.fullJson || '{}');
+          for(let k in full){ if(['pageChecks','salaryMonths','salaryMonthsCo','personType','fullJson'].includes(k)) continue; let els=document.getElementsByName(k); if(els[0]){ if(k.startsWith('NetSalary_') || k.startsWith('form16') || k.startsWith('itr')){ els[0].value=full[k]; } else if(!els[0].value){ els[0].value=full[k]; } } }
+        }catch(e){}
+        autoFill(); autoFillResiTele(); autoFillOfficeTele();
+        alert('✅ Data Load Holo - Salary, Form16 2026-27, ITR 2026-27 sob restore!');
+      }, 900);
+    }else alert('Case not found');
+  }catch(e){ alert('Load error:'+e.message); }
+}
+function togglePerson(){
+  let checked=document.querySelector('input[name="personType"]:checked');
+  if(checked) currentPerson=checked.value;
+  let appData=document.getElementById('applicantData');
+  let coData=document.getElementById('coApplicantData');
+  let appPages=document.getElementById('appPages');
+  let coPages=document.getElementById('coPages');
+  if(currentPerson=='a'){ appData.classList.remove('hidden'); coData.classList.add('hidden'); appPages.classList.remove('hidden'); coPages.classList.add('hidden'); }
+  else if(currentPerson=='b'){ appData.classList.add('hidden'); coData.classList.remove('hidden'); appPages.classList.add('hidden'); coPages.classList.remove('hidden'); }
+  else { appData.classList.remove('hidden'); coData.classList.remove('hidden'); appPages.classList.remove('hidden'); coPages.classList.remove('hidden'); }
+  togglePages();
+}
+function generateSalaryInputs(){
+  let div=document.getElementById('salaryMonthInputs'); if(!div) return; div.innerHTML='';
+  let selected=[...document.getElementById('salaryMonths').selectedOptions].map(o=>o.value);
+  selected.forEach(m=>{ div.innerHTML+=`<div class="salary-month-box"><b>${m}</b> NET SALARY: <input name="NetSalary_${m}" placeholder="Enter Net Salary" style="border:1px solid #999;width:180px;background:white"></div>`; });
+}
+function generateSalaryInputsCo(){
+  let div=document.getElementById('salaryMonthInputsCo'); if(!div) return; div.innerHTML='';
+  let selected=[...document.getElementById('salaryMonthsCo').selectedOptions].map(o=>o.value);
+  selected.forEach(m=>{div.innerHTML+=`<div class="salary-month-box"><b>${m}</b> NET SALARY: <input name="NetSalaryCo_${m}" placeholder="Enter Net Salary" style="border:1px solid #999;width:180px;background:white"></div>`})
+}
+function toggleForm16Ay(){
+  let div=document.getElementById('form16AyInputs'); if(!div) return; div.innerHTML='';
+  let mOName=document.getElementById('mOName').value || '';
+  let mOAddr=document.getElementById('mOAddr').value || '';
+  [1,2,3,4].forEach(i=>{
+    let chk=document.getElementById('form16Ay'+i);
+    if(chk && chk.checked){
+      let ay=form16AyYears[i-1];
+      div.innerHTML+=`<div style="border:1px solid #004A99;padding:10px;margin-bottom:10px;background:#fff8e1"><b>FORM 16 VERIFICATION - AY ${ay}</b><br>
+      <div class="itr-row"><label>OFFICE NAME:</label><input name="form16OfficeName_${i}" value="${mOName}" style="border:1px solid #999;width:150px;background:white"><label>OFFICE ADDRESS:</label><input name="form16OfficeAddr_${i}" value="${mOAddr}" style="border:1px solid #999;width:150px;background:white"></div>
+      <div class="itr-row"><label>TOTAL AMOUNT PAID/CREDITED:</label><input name="form16TotalPaid_${i}" style="border:1px solid #999;width:130px;background:white"><label>TOTAL TAX DEDUCTED:</label><input name="form16TaxDeduct_${i}" style="border:1px solid #999;width:130px;background:white"></div>
+      <div class="itr-row"><label>TOTAL TDS DEPOSITED:</label><input name="form16TdsDeposit_${i}" style="border:1px solid #999;width:130px;background:white"><label>RESULT:</label><select name="form16Result_${i}" style="border:1px solid #999;width:80px;background:white"><option>OK</option><option>NOT OK</option><option>NA</option></select></div>
+      <div class="ay-photo-box"><b>FORM 16 ${ay} Photo:</b> <input type="file" accept="image/*" multiple onchange="handleForm16Photo(${i}, this, false)"> <span id="form16PhotoCount_${i}"></span></div></div>`;
+    }
+  });
+}
+function toggleForm16AyCo(){
+  let div=document.getElementById('form16AyInputsCo'); if(!div) return; div.innerHTML='';
+  let mOName=document.getElementById('mOName').value || '';
+  let mOAddr=document.getElementById('mOAddr').value || '';
+  [1,2,3,4].forEach(i=>{
+    let chk=document.getElementById('form16AyCo'+i);
+    if(chk && chk.checked){
+      let ay=form16AyYears[i-1];
+      div.innerHTML+=`<div style="border:1px solid #1976d2;padding:10px;margin-bottom:10px;background:#e3f2fd"><b>CO-APPLICANT FORM 16 VERIFICATION - AY ${ay}</b><br>
+      <div class="itr-row"><label>OFFICE NAME:</label><input name="form16OfficeNameCo_${i}" value="${mOName}" style="border:1px solid #999;width:150px;background:white"><label>OFFICE ADDRESS:</label><input name="form16OfficeAddrCo_${i}" value="${mOAddr}" style="border:1px solid #999;width:150px;background:white"></div>
+      <div class="itr-row"><label>TOTAL AMOUNT PAID/CREDITED:</label><input name="form16TotalPaidCo_${i}" style="border:1px solid #999;width:130px;background:white"><label>TOTAL TAX DEDUCTED:</label><input name="form16TaxDeductCo_${i}" style="border:1px solid #999;width:130px;background:white"></div>
+      <div class="itr-row"><label>TOTAL TDS DEPOSITED:</label><input name="form16TdsDepositCo_${i}" style="border:1px solid #999;width:130px;background:white"><label>RESULT:</label><select name="form16ResultCo_${i}" style="border:1px solid #999;width:80px;background:white"><option>OK</option><option>NOT OK</option><option>NA</option></select></div>
+      <div class="ay-photo-box"><b>FORM 16 CO ${ay} Photo:</b> <input type="file" accept="image/*" multiple onchange="handleForm16Photo(${i}, this, true)"><span id="form16PhotoCountCo_${i}"></span></div></div>`;
+    }
+  });
+}
+function handleForm16Photo(ayIndex, input, isCo){
+  let files=input.files; if(!files) return;
+  let target = isCo ? form16PhotosCo : form16Photos;
+  target[ayIndex]=[];
+  Array.from(files).forEach(f=>{ let r=new FileReader(); r.onload=ev=>{ target[ayIndex].push(ev.target.result); let elId=isCo? `form16PhotoCountCo_${ayIndex}` : `form16PhotoCount_${ayIndex}`; let el=document.getElementById(elId); if(el) el.innerText=target[ayIndex].length+' photo'; }; r.readAsDataURL(f); });
+}
+function toggleItrAyNew(){
+  let div=document.getElementById('itrAyInputsNew'); if(!div) return; div.innerHTML='';
+  [1,2,3,4].forEach(i=>{
+    let chk=document.getElementById('itrAy'+i);
+    if(chk && chk.checked){
+      let ay=itrAyYears[i-1];
+      div.innerHTML+=`<div style="border:2px solid #004A99;padding:12px;margin-bottom:12px;background:#e3f2fd"><b>ITR DETAILS - AY ${ay}</b><br><div class="itr-row"><label>ACK NO:</label><input name="itrAck_${i}" style="border:1px solid #999;width:150px;background:white"><label>E-FILING DATE:</label><input type="date" name="itrEfile_${i}" style="border:1px solid #999;width:140px;background:white"><label>TOTAL INCOME:</label><input name="itrIncome_${i}" style="border:1px solid #999;width:120px;background:white"></div><div class="itr-row"><label>RESULT:</label><select name="itrResult_${i}" style="border:1px solid #999;width:100px;background:white"><option>OK</option><option>NOT OK</option><option>NA</option></select><label>VERIFY DATE:</label><input type="date" name="itrVdate_${i}" style="border:1px solid #999;width:140px;background:white"></div><div class="ay-photo-box"><b>ITR ${ay} Photo:</b> <input type="file" accept="image/*" multiple onchange="handleItrAyPhoto(${i}, this, false)"><span id="itrPhotoCountNew_${i}"></span></div></div>`;
+    }
+  });
+}
+function toggleItrAyCo(){
+  let div=document.getElementById('itrAyInputsCo'); if(!div) return; div.innerHTML='';
+  [1,2,3,4].forEach(i=>{
+    let chk=document.getElementById('itrAyCo'+i);
+    if(chk && chk.checked){
+      let ay=itrAyYears[i-1];
+      div.innerHTML+=`<div style="border:2px solid #1976d2;padding:12px;margin-bottom:12px;background:#fff8e1"><b>CO-APPLICANT ITR DETAILS - AY ${ay}</b><br><div class="itr-row"><label>ACK NO:</label><input name="itrAckCo_${i}" style="border:1px solid #999;width:150px;background:white"><label>E-FILING DATE:</label><input type="date" name="itrEfileCo_${i}" style="border:1px solid #999;width:140px;background:white"><label>TOTAL INCOME:</label><input name="itrIncomeCo_${i}" style="border:1px solid #999;width:120px;background:white"></div><div class="itr-row"><label>RESULT:</label><select name="itrResultCo_${i}" style="border:1px solid #999;width:100px;background:white"><option>OK</option><option>NOT OK</option><option>NA</option></select><label>VERIFY DATE:</label><input type="date" name="itrVdateCo_${i}" style="border:1px solid #999;width:140px;background:white"></div><div class="ay-photo-box"><b>ITR CO ${ay} Photo:</b> <input type="file" accept="image/*" multiple onchange="handleItrAyPhoto(${i}, this, true)"><span id="itrPhotoCountCo_${i}"></span></div></div>`;
+    }
+  });
+}
+function handleItrAyPhoto(ayIndex, input, isCo){
+  let files=input.files; if(!files) return;
+  let target = isCo ? itrAyPhotosCo : itrAyPhotos;
+  target[ayIndex]=[];
+  Array.from(files).forEach(f=>{ let r=new FileReader(); r.onload=ev=>{ target[ayIndex].push(ev.target.result); let elId=isCo? `itrPhotoCountCo_${ayIndex}` : `itrPhotoCountNew_${ayIndex}`; let el=document.getElementById(elId); if(el) el.innerText=target[ayIndex].length+' photo'; }; r.readAsDataURL(f); });
+}
+function setTodayDate(){let today=new Date().toISOString().split('T')[0];let r=document.getElementById('mResiDate'); if(r) r.value=today; let o=document.getElementById('mOffDate'); if(o) o.value=today;}
+function readImg(id, target){let el=document.getElementById(id); if(!el) return; el.addEventListener('change',function(e){let file=e.target.files[0];if(!file) return;let reader=new FileReader();reader.onload=function(ev){if(target==="top") commonTop=ev.target.result;else if(target==="topRight") commonTopRight=ev.target.result;else if(target==="bot") commonBot=ev.target.result;else target.push(ev.target.result);};reader.readAsDataURL(file);})}
+readImg('commonTop', "top"); readImg('commonTopRight', "topRight"); readImg('commonBot', "bot");
+let kycAppEl=document.getElementById('kycFilesApplicant'); if(kycAppEl) kycAppEl.addEventListener('change',function(e){kycPhotosApplicant=[];Array.from(e.target.files).forEach(f=>{let r=new FileReader();r.onload=ev=>{kycPhotosApplicant.push(ev.target.result);document.getElementById('kycCountApplicant').innerText=kycPhotosApplicant.length+' photo';};r.readAsDataURL(f)})});
+let kycCoEl=document.getElementById('kycFilesCo'); if(kycCoEl) kycCoEl.addEventListener('change',function(e){kycPhotosCo=[];Array.from(e.target.files).forEach(f=>{let r=new FileReader();r.onload=ev=>{kycPhotosCo.push(ev.target.result);document.getElementById('kycCountCo').innerText=kycPhotosCo.length+' photo';};r.readAsDataURL(f)})});
+for(let i=1;i<=8;i++){let el=document.getElementById('ex'+i); if(el) readImg('ex'+i, extraPhotos)}
+function autoFill(){
+  let set=(srcId, name)=>{ let val=document.getElementById(srcId).value; if(val){ document.getElementsByName(name).forEach(el=>el.value=val); } }
+  set('mApplicant','Applicant');set('mApplicant','Applicant2');set('mApplicant','Applicant4');set('mApplicant','Applicant5');set('mApplicant','ApplicantTele');set('mApplicant','ApplicantTele2');set('mApplicant','ApplicantSal');set('mApplicant','ApplicantItr');
+  set('mCoApplicant','ApplicantCo');set('mCoApplicant','Applicant2Co');set('mCoApplicant','Applicant4Co');set('mCoApplicant','Applicant5Co');set('mCoApplicant','ApplicantTeleCo');set('mCoApplicant','ApplicantTele2Co');set('mCoApplicant','ApplicantSalCo');set('mCoApplicant','ApplicantItrCo');
+  set('mBranch','Branch');set('mBranch','Branch2');set('mBranch','BranchCo');set('mBranch','Branch2Co');set('mBranch','BranchTele');set('mBranch','BranchTeleCo');set('mBranch','BranchTele2');set('mBranch','BranchTele2Co');set('mBranch','BranchSal');set('mBranch','BranchSalCo');set('mBranch','BranchItr');set('mBranch','BranchItrCo');
+  set('mBCode','BranchCode');set('mBCode','BranchCode2');set('mBCode','BranchCodeCo');set('mBCode','BranchCode2Co');
+  set('mLoanType','LoanType');set('mLoanType','LoanType2');set('mLoanType','LoanTypeCo');set('mLoanType','LoanType2Co');
+  set('mOName','OfficeName');set('mOName','OfficeNameCo');set('mOName','SalaryOffice');set('mOName','SalaryOfficeCo');
+  set('mOAddr','OfficeAddress');set('mOAddr','OfficeAddressCo');
+  set('mOCon','OfficeContact');set('mOCon','OfficeContactCo');
+  set('mVResi','VerifierResi');set('mVResi','VerifierKYC');set('mVResi','VerifierResiCo');set('mVResi','VerifierKYCCo');set('mVResi','VerifierResiTele');set('mVResi','VerifierResiTeleCo');
+  set('mVOff','VerifierOffice');set('mVOff','VerifierOfficeCo');set('mVOff','VerifierITR');set('mVOff','VerifierSalary');set('mVOff','VerifierSalaryCo');set('mVOff','VerifierITR2');set('mVOff','VerifierOfficeTele');set('mVOff','VerifierOfficeTeleCo');
+  set('mResiDate','ResiVerifyDate');set('mResiDate','ResiVerifyDateCo');set('mResiDate','KYCDate');set('mResiDate','KYCDateCo');set('mResiDate','ResiTeleDate');set('mResiDate','ResiTeleDateCo');
+  set('mOffDate','OfficeVerifyDate');set('mOffDate','OfficeVerifyDateCo');set('mOffDate','Form16Date');set('mOffDate','OfficeTeleDate');set('mOffDate','OfficeTeleDateCo');set('mOffDate','SalaryDate');set('mOffDate','SalaryDateCo');
+  autoFillResiTele(); autoFillOfficeTele();
+}
+function autoFillResiTele(){
+  let contact=document.getElementsByName('Contact')[0];
+  let personMet=document.getElementsByName('PersonMet')[0];
+  if(contact && contact.value){ let teleNo=document.getElementsByName('ResiTeleNo')[0]; if(teleNo) teleNo.value=contact.value; }
+  if(personMet && personMet.value){ let telePerson=document.getElementsByName('ResiTelePerson')[0]; if(telePerson) telePerson.value=personMet.value; let teleRelation=document.getElementsByName('ResiTeleRelation')[0]; if(teleRelation && !teleRelation.value) teleRelation.value='SELF'; }
+  let contactCo=document.getElementsByName('ContactCo')[0];
+  let personMetCo=document.getElementsByName('PersonMetCo')[0];
+  if(contactCo && contactCo.value){ let teleNoCo=document.getElementsByName('ResiTeleNoCo')[0]; if(teleNoCo) teleNoCo.value=contactCo.value; }
+  if(personMetCo && personMetCo.value){ let telePersonCo=document.getElementsByName('ResiTelePersonCo')[0]; if(telePersonCo) telePersonCo.value=personMetCo.value; let teleRelCo=document.getElementsByName('ResiTeleRelationCo')[0]; if(teleRelCo && !teleRelCo.value) teleRelCo.value='SELF'; }
+}
+function autoFillOfficeTele(){
+  let offContact=document.getElementsByName('OfficeContact')[0];
+  let offPerson=document.getElementsByName('OfficePerson')[0];
+  let designation=document.getElementsByName('Designation')[0];
+  if(offContact && offContact.value){ let teleOffNo=document.getElementsByName('OfficeTeleNo')[0]; if(teleOffNo) teleOffNo.value=offContact.value; }
+  if(offPerson && offPerson.value){ let teleOffPerson=document.getElementsByName('OfficeTelePerson')[0]; if(teleOffPerson) teleOffPerson.value=offPerson.value; let teleDesig=document.getElementsByName('OfficeTeleDesig')[0]; if(teleDesig && designation) teleDesig.value=designation.value; }
+  let offContactCo=document.getElementsByName('OfficeContactCo')[0];
+  let offPersonCo=document.getElementsByName('OfficePersonCo')[0];
+  let designationCo=document.getElementsByName('DesignationCo')[0];
+  if(offContactCo && offContactCo.value){ let teleOffNoCo=document.getElementsByName('OfficeTeleNoCo')[0]; if(teleOffNoCo) teleOffNoCo.value=offContactCo.value; }
+  if(offPersonCo && offPersonCo.value){ let teleOffPersonCo=document.getElementsByName('OfficeTelePersonCo')[0]; if(teleOffPersonCo) teleOffPersonCo.value=offPersonCo.value; let teleDesigCo=document.getElementsByName('OfficeTeleDesigCo')[0]; if(teleDesigCo && designationCo) teleDesigCo.value=designationCo.value; }
+}
+function togglePages(){
+  const pages=['resi','resiTele','office','officeTele','salary','form16','itr','kyc'];
+  pages.forEach(x=>{
+    let cap=x.charAt(0).toUpperCase()+x.slice(1);
+    let el1=document.getElementById(x+"Div");
+    if(el1){ let chk=document.getElementById("p"+cap); if(chk) el1.classList.toggle("hidden",!chk.checked); }
+    let el2=document.getElementById(x+"DivCo");
+    if(el2){ let chk2=document.getElementById("p"+cap+"Co"); if(chk2) el2.classList.toggle("hidden",!chk2.checked); }
+  });
+  let itrNew=document.getElementById('itrDivNew'); if(itrNew){ let pItr=document.getElementById('pItr'); if(pItr) itrNew.classList.toggle('hidden',!pItr.checked); }
+  let itrCo=document.getElementById('itrDivCo'); if(itrCo){ let pItrCo=document.getElementById('pItrCo'); if(pItrCo) itrCo.classList.toggle('hidden',!pItrCo.checked); }
+  let form16Co=document.getElementById('form16DivCo'); if(form16Co){ let pF16Co=document.getElementById('pForm16Co'); if(pF16Co) form16Co.classList.toggle('hidden',!pF16Co.checked); }
+}
+['pResi','pResiTele','pOffice','pOfficeTele','pSalary','pForm16','pKyc','pItr','pResiCo','pResiTeleCo','pOfficeCo','pOfficeTeleCo','pSalaryCo','pForm16Co','pKycCo','pItrCo','pPhotoCo'].forEach(id=>{let el=document.getElementById(id); if(el) el.addEventListener('change',togglePages)})
+function safeAddImg(pdf, img, x,y,w,h){ if(img && img.startsWith('data:image')){ try{ pdf.addImage(img,'JPEG',x,y,w,h) }catch(e){} } }
+function addHeader(pdf,title){
+  safeAddImg(pdf, commonTop, 10,12,30,20);
+  safeAddImg(pdf, commonTopRight, 165,12,30,20);
+  pdf.setFont("times","bold");pdf.setFontSize(18);pdf.setTextColor(0,74,153);pdf.text("DKS MANAGEMENT SERVICES",105,20,{align:"center"});pdf.setFont("times","normal");pdf.setFontSize(9);pdf.setTextColor(0,0,0);pdf.text("JOYPUL METHOPARA, DUTTAPUKUR, NORTH 24 PGS, PIN- 743234",105,26,{align:"center"});pdf.text("MOBILE: 6290173257 | EMAIL: DKSMERVICE@GMAIL.COM",105,31,{align:"center"});pdf.line(10,34,200,34);pdf.setFillColor(208,208,208);pdf.rect(10,38,190,8,"F");pdf.text(title,105,44,{align:"center"});return 50}
+function addTable(pdf,startY,rows,title){pdf.setFont("times","bold");pdf.setFontSize(10);pdf.setFillColor(208,208,208);pdf.rect(10,startY,190,7,"F");pdf.text(title,105,startY+5,{align:"center"});pdf.autoTable({startY:startY+7,body:rows,theme:'grid',styles:{font:"times",fontSize:9,cellPadding:2,fontStyle:'bold'},columnStyles:{0:{cellWidth:60,fontStyle:'bold',fillColor:[245,245,245]},1:{cellWidth:130}},margin:{left:10,right:10}});let newY=pdf.lastAutoTable.finalY+6;if(newY>265){pdf.addPage(); return 15}return newY}
+function addTwoTable(pdf,startY,rows1,rows2,t1,t2){let y=startY;if(t1){pdf.setFont("times","bold");pdf.setFontSize(9);pdf.setFillColor(208,208,208);pdf.rect(10,y,95,6,"F");pdf.text(t1,57.5,y+4,{align:"center"});}if(t2){pdf.rect(105,y,95,6,"F");pdf.text(t2,152.5,y+4,{align:"center"});}pdf.autoTable({startY:y+6,body:rows1,theme:'grid',styles:{font:"times",fontSize:8,cellPadding:1.5,fontStyle:'bold'},columnStyles:{0:{cellWidth:47,fontStyle:'bold',fillColor:[245,245,245]},1:{cellWidth:48}},margin:{left:10},tableWidth:95});let y1=pdf.lastAutoTable.finalY;pdf.autoTable({startY:y+6,body:rows2,theme:'grid',styles:{font:"times",fontSize:8,cellPadding:1.5,fontStyle:'bold'},columnStyles:{0:{cellWidth:47,fontStyle:'bold',fillColor:[245,245,245]},1:{cellWidth:48}},margin:{left:105},tableWidth:95});let y2=pdf.lastAutoTable.finalY;y=Math.max(y1,y2)+6;if(y>265){pdf.addPage(); return 15}return y}
+function addKycTable(pdf,startY,rows,title){
+  pdf.setFont("times","bold");pdf.setFontSize(10);pdf.setFillColor(208,208,208);pdf.rect(10,startY,190,7,"F");pdf.text(title,105,startY+5,{align:"center"});
+  pdf.autoTable({startY:startY+7,body:rows,theme:'grid',styles:{font:"times",fontSize:9,cellPadding:2,fontStyle:'bold'},columnStyles:{0:{cellWidth:45,fontStyle:'bold',fillColor:[245,245,245]},1:{cellWidth:55},2:{cellWidth:45,fontStyle:'bold',fillColor:[245,245,245]},3:{cellWidth:45}},margin:{left:10,right:10}});
+  let newY=pdf.lastAutoTable.finalY+6;if(newY>265){pdf.addPage(); return 15}return newY;
+}
+function addFooter(pdf){ safeAddImg(pdf, commonBot, 150,265,60,20) }
+function addPicsGrid(pdf,arr,y,maxPerPage){if(!arr || arr.length==0) return y;let count=Math.min(arr.length,maxPerPage||4);for(let i=0;i<count;i++){let col=i%2; let row=Math.floor(i/2);safeAddImg(pdf, arr[i], 10+(col*95), y+(row*70), 95, 65);}return y+145}
+function generatePDF(){
+  try{
+    let f=document.getElementById("fvrForm");let data=new FormData(f);
+    let fname=(document.getElementById("mApplicant").value||document.getElementById("mCoApplicant").value||"FVR")+"_SBI_REPORT.PDF";
+    const pdf=new jsPDF('p','mm','a4');let y=20;let page=0;
+    function generatePersonReport(prefix, isCo){
+      let personLabel = isCo? "CO-APPLICANT" : "APPLICANT";
+      let checkPrefix = prefix;
+      function isChecked(pageName){
+        let el=document.getElementById("p"+pageName+checkPrefix);
+        if(!el) return false;
+        return el.checked;
+      }
+      if(isChecked("Resi")){
+        if(page>0){pdf.addPage();y=15}
+        y=addHeader(pdf,personLabel+" RESIDENCE VERIFICATION");
+        y=addTable(pdf,y,[['NAME OF BRANCH',data.get("Branch"+prefix)],['BRANCH CODE',data.get("BranchCode"+prefix)],['NAME',isCo? data.get("ApplicantCo") : data.get("Applicant")],['DATE OF BIRTH',data.get("DOB"+prefix)],['TYPE OF LOAN',data.get("LoanType"+prefix)],['VERIFICATION DATE',data.get("ResiVerifyDate"+prefix)]],"BASIC DETAILS");
+        let left=[['ADDRESS',data.get("Address"+prefix)],['ADDRESS PROOF',data.get("AddressProof"+prefix)],['CONTACT',data.get("Contact"+prefix)],['STAY PERIOD',data.get("StayPeriod"+prefix)]];
+        let right=[['PERSON MET',data.get("PersonMet"+prefix)],['FAMILY',data.get("Family"+prefix)],['EARNING',data.get("Earning"+prefix)],['STATUS',data.get("ResidenceStatus"+prefix)]];
+        y=addTwoTable(pdf,y,left,right,"RESIDENCE DETAILS","");
+        y=addTwoTable(pdf,y,[['APPROX RENT',data.get("ApproxRent"+prefix)],['LANDMARK',data.get("Landmark"+prefix)],['LOCALITY',data.get("Locality"+prefix)],['ACCOMMODATION',data.get("Accommodation"+prefix)]], [['INTERIOR',data.get("Interior"+prefix)],['STANDARD LIVING',data.get("StandardLiving"+prefix)]], "PROPERTY DETAILS","VERIFIER OBSERVATION");
+        y=addTable(pdf,y,[['RESULT',data.get("ResiResult"+prefix)],['REMARKS',data.get("ResiRemark"+prefix)]],"RESIDENCE REMARKS");
+        addFooter(pdf);page++;
+      }
+      if(isChecked("ResiTele")){
+        if(page>0){pdf.addPage();y=15}
+        y=addHeader(pdf,personLabel+" RESIDENCE TELE VERIFICATION");
+        y=addTable(pdf,y,[['NAME OF BRANCH',data.get("BranchTele"+prefix)],['APPLICANT',data.get("ApplicantTele"+prefix)],['CONTACT NUMBER',data.get("ResiTeleNo"+prefix)],['PERSON SPOKE TO',data.get("ResiTelePerson"+prefix)],['RELATION',data.get("ResiTeleRelation"+prefix)],['VERIFICATION DATE',data.get("ResiTeleDate"+prefix)],['VERIFIER',data.get("VerifierResiTele"+prefix)],['REMARKS',data.get("ResiTeleRemark"+prefix)],['RESULT',data.get("ResiTeleResult"+prefix)]],"RESIDENCE TELE VERIFICATION DETAILS");
+        addFooter(pdf);page++;
+      }
+      if(isChecked("Office")){
+        if(page>0){pdf.addPage();y=15}
+        y=addHeader(pdf,personLabel+" OFFICE VERIFICATION");
+        y=addTable(pdf,y,[['NAME OF BRANCH',data.get("Branch2"+prefix)],['BRANCH CODE',data.get("BranchCode2"+prefix)],['APPLICANT',isCo? data.get("Applicant2Co") : data.get("Applicant2")],['TYPE OF LOAN',data.get("LoanType2"+prefix)],['VERIFICATION DATE',data.get("OfficeVerifyDate"+prefix)]],"BASIC DETAILS");
+        let left=[['OFFICE NAME',data.get("OfficeName"+prefix)],['OFFICE ADDRESS',data.get("OfficeAddress"+prefix)],['DESIGNATION',data.get("Designation"+prefix)],['NATURE OF SERVICE/BUSINESS',data.get("Nature"+prefix)],['DOJ',data.get("DOJ"+prefix)]];
+        let right=[['PERSON MET',data.get("OfficePerson"+prefix)],['CONTACT',data.get("OfficeContact"+prefix)],['CO BOARD/BADGE',data.get("CoBoard"+prefix)],['TYPE OF EMPLOYER',data.get("EmpType"+prefix)]];
+        y=addTwoTable(pdf,y,left,right,"OFFICE/BUSINESS DETAILS","");
+        y=addTable(pdf,y,[['YEARS OF ESTABLISHMENT',data.get("YearEst"+prefix)],['NO OF EMPLOYEES',data.get("NoEmp"+prefix)],['OFFICE AMBIANCE',data.get("Ambiance"+prefix)],['TERM OF EMPLOYMENT',data.get("EmpTerm"+prefix)],['RESULT',data.get("OfficeResult"+prefix)]],"OFFICE OBSERVATION");
+        y=addTable(pdf,y,[['VERIFIER NAME',data.get("VerifierOffice"+prefix)],['VERIFIER REMARKS',data.get("OfficeRemark"+prefix)]],"VERIFIER DETAILS");
+        addFooter(pdf);page++;
+      }
+      if(isChecked("OfficeTele")){
+        if(page>0){pdf.addPage();y=15}
+        y=addHeader(pdf,personLabel+" OFFICE TELE VERIFICATION");
+        y=addTable(pdf,y,[['NAME OF BRANCH',data.get("BranchTele2"+prefix)],['APPLICANT',data.get("ApplicantTele2"+prefix)],['OFFICE CONTACT',data.get("OfficeTeleNo"+prefix)],['PERSON SPOKE TO',data.get("OfficeTelePerson"+prefix)],['DESIGNATION',data.get("OfficeTeleDesig"+prefix)],['VERIFICATION DATE',data.get("OfficeTeleDate"+prefix)],['VERIFIER',data.get("VerifierOfficeTele"+prefix)],['REMARKS',data.get("OfficeTeleRemark"+prefix)],['RESULT',data.get("OfficeTeleResult"+prefix)]],"OFFICE TELE VERIFICATION DETAILS");
+        addFooter(pdf);page++;
+      }
+      if(isChecked("Salary")){
+        if(page>0){pdf.addPage();y=15}
+        y=addHeader(pdf,personLabel+" SALARY SLIP VERIFICATION");
+        y=addTable(pdf,y,[['NAME OF BRANCH',data.get("BranchSal"+prefix)],['APPLICANT',data.get("ApplicantSal"+prefix)],['OFFICE NAME',data.get("SalaryOffice"+prefix)]],"BASIC DETAILS");
+        let months = isCo? data.getAll("SalaryMonthsCo") : data.getAll("SalaryMonths");
+        if(months.length==0){
+          let sel=document.getElementById(isCo?"salaryMonthsCo":"salaryMonths");
+          if(sel) months=[...sel.selectedOptions].map(o=>o.value);
+        }
+        if(months.length>0){
+          let salaryRows = [['MONTHS','NET SALARY']];
+          months.forEach(m=>{
+            let net = isCo? data.get("NetSalaryCo_"+m) : data.get("NetSalary_"+m);
+            salaryRows.push([m, net || ''])
+          })
+          pdf.autoTable({startY:y,head:[salaryRows[0]],body:salaryRows.slice(1),theme:'grid',styles:{font:"times",fontSize:9,fontStyle:'bold'},margin:{left:10,right:10}});
+          y=pdf.lastAutoTable.finalY+8;
+        }
+        y=addTable(pdf,y,[['VERIFICATION DATE',data.get("SalaryDate"+prefix)],['VERIFIER',data.get("VerifierSalary"+prefix)],['REMARKS',data.get("SalaryRemark"+prefix)]],"SALARY VERIFICATION DETAILS");
+        addFooter(pdf);page++;
+      }
+      if(isChecked("Form16")){
+        let form16List = isCo ? form16PhotosCo : form16Photos;
+        [1,2,3,4].forEach(i=>{
+          let chkId = isCo ? `form16AyCo${i}` : `form16Ay${i}`;
+          let chk=document.getElementById(chkId);
+          if(chk && chk.checked){
+            if(page>0){pdf.addPage();y=15}
+            let ay=form16AyYears[i-1];
+            y=addHeader(pdf,personLabel+" FORM 16 VERIFICATION - AY "+ay);
+            y=addTable(pdf,y,[['NAME OF BRANCH',data.get("Branch"+prefix)],['APPLICANT',isCo? data.get("Applicant4Co") : data.get("Applicant4")]],"BASIC DETAILS");
+            y=addTable(pdf,y,[
+              ['OFFICE NAME', data.get(isCo?`form16OfficeNameCo_${i}`:`form16OfficeName_${i}`)||''],
+              ['OFFICE ADDRESS', data.get(isCo?`form16OfficeAddrCo_${i}`:`form16OfficeAddr_${i}`)||''],
+              ['TOTAL AMOUNT PAID/CREDITED', data.get(isCo?`form16TotalPaidCo_${i}`:`form16TotalPaid_${i}`)||''],
+              ['TOTAL TAX AMOUNT DEDUCTED', data.get(isCo?`form16TaxDeductCo_${i}`:`form16TaxDeduct_${i}`)||''],
+              ['TOTAL TDS DEPOSITED', data.get(isCo?`form16TdsDepositCo_${i}`:`form16TdsDeposit_${i}`)||''],
+              ['RESULT', data.get(isCo?`form16ResultCo_${i}`:`form16Result_${i}`)||'OK']
+            ],`FORM 16 VERIFICATION - AY ${ay}`);
+            if(form16List[i] && form16List[i].length>0){
+              y+=3; if(y>240){pdf.addPage(); y=15;}
+              pdf.setFontSize(8); pdf.text(`FORM 16 ${ay} Photos: ${form16List[i].length} attached`,10,y); y+=6;
+              form16List[i].forEach((img,idx)=>{
+                if(y>230){pdf.addPage(); y=15;}
+                safeAddImg(pdf, img, 10+(idx%2)*95, y, 90, 60);
+                if(idx%2==1) y+=65;
+              });
+              if(form16List[i].length%2==1) y+=65;
+            }
+            y=addTable(pdf,y,[['VERIFICATION DATE',data.get("Form16Date"+prefix)||''],['VERIFIER',data.get("VerifierITR"+prefix)||'']],"VERIFICATION");
+            addFooter(pdf);page++;
+          }
+        });
+      }
+      if(isChecked("Itr")){
+        let itrList = isCo ? itrAyPhotosCo : itrAyPhotos;
+        [1,2,3,4].forEach(i=>{
+          let chkId = isCo ? `itrAyCo${i}` : `itrAy${i}`;
+          let chk=document.getElementById(chkId);
+          if(chk && chk.checked){
+            if(page>0){pdf.addPage();y=15}
+            let ay=itrAyYears[i-1];
+            y=addHeader(pdf,personLabel+" ITR VERIFICATION - AY "+ay);
+            y=addTable(pdf,y,[['NAME OF BRANCH',data.get("BranchItr"+prefix)||data.get("Branch"+prefix)],['APPLICANT',isCo? data.get("ApplicantItrCo") : data.get("ApplicantItr") || (isCo? data.get("ApplicantCo") : data.get("Applicant"))],['PAN',data.get("ItrPAN"+prefix)||'']],"BASIC DETAILS");
+            let ack = data.get(isCo? `itrAckCo_${i}` : `itrAck_${i}`) || '';
+            let efile = data.get(isCo? `itrEfileCo_${i}` : `itrEfile_${i}`) || '';
+            let income = data.get(isCo? `itrIncomeCo_${i}` : `itrIncome_${i}`) || '';
+            let result = data.get(isCo? `itrResultCo_${i}` : `itrResult_${i}`) || 'OK';
+            let vdate = data.get(isCo? `itrVdateCo_${i}` : `itrVdate_${i}`) || '';
+            y=addTable(pdf,y,[[`ASSESSMENT YEAR`, ay],[`ACKNOWLEDGEMENT NUMBER`, ack],[`E-FILING DATE`, efile],[`TOTAL INCOME`, income],[`RESULT`, result],[`VERIFY DATE`, vdate]],`ITR DETAILS - AY ${ay}`);
+            if(itrList[i] && itrList[i].length>0){
+              y+=3; if(y>240){pdf.addPage(); y=15;}
+              pdf.setFontSize(8); pdf.text(`ITR ${ay} Photos: ${itrList[i].length} attached`,10,y); y+=6;
+              itrList[i].forEach((img,idx2)=>{
+                if(y>230){pdf.addPage(); y=15;}
+                safeAddImg(pdf, img, 10+(idx2%2)*95, y, 90, 60);
+                if(idx2%2==1) y+=65;
+              });
+              if(itrList[i].length%2==1) y+=65;
+            }
+            y=addTable(pdf,y,[['VERIFIER',data.get("VerifierITR2")||''],['REMARKS',data.get("ItrRemark")||'ITR VERIFIED']],"VERIFICATION");
+            addFooter(pdf);page++;
+          }
+        });
+      }
+      if(isChecked("Kyc")){
+        if(page>0){pdf.addPage();y=15}
+        y=addHeader(pdf,personLabel+" KYC DETAILS");
+        y=addTable(pdf,y,[['NAME OF BRANCH',data.get("Branch"+prefix)],['BRANCH CODE',data.get("BranchCode"+prefix)],['TYPE OF LOAN',data.get("LoanType"+prefix)]],"BASIC DETAILS");
+        let aadhaarStatus=data.get("AadhaarStatus"+prefix) || 'OK';
+        let panStatus=data.get("PANStatus"+prefix) || 'OK';
+        let voterStatus=data.get("VoterStatus"+prefix) || 'OK';
+        let aadhaarNo=data.get("Aadhaar"+prefix) || '';
+        let panNo=data.get("PAN"+prefix) || '';
+        let voterNo=data.get("Voter"+prefix) || '';
+        y=addKycTable(pdf,y,[
+          ['APPLICANT', isCo? data.get("Applicant5Co") : data.get("Applicant5"), '', ''],
+          ['AADHAAR NUMBER', aadhaarNo, 'RESULT', aadhaarStatus],
+          ['PAN NUMBER', panNo, 'RESULT', panStatus],
+          ['VOTER ID', voterNo, 'RESULT', voterStatus],
+          ['VERIFIER',data.get("VerifierKYC"+prefix)||'', 'VERIFICATION DATE', data.get("KYCDate"+prefix)||'']
+        ],"KYC DETAILS VERIFICATION");
+        let kycArr = isCo ? kycPhotosCo : kycPhotosApplicant;
+        y=addPicsGrid(pdf,kycArr,y,8);
+        addFooter(pdf);page++;
+      }
+    }
+    if(currentPerson=='a' || currentPerson=='c') generatePersonReport('', false);
+    if(currentPerson=='b' || currentPerson=='c') generatePersonReport('Co', true);
+    if(document.getElementById("pPhoto").checked || (document.getElementById("pPhotoCo") && document.getElementById("pPhotoCo").checked)){
+      let photoCount = extraPhotos.length;
+      if(photoCount>0){
+        if(page>0){pdf.addPage();y=15}
+        y=addHeader(pdf,"SELFIE PHOTOS PAGE 1 - MAX 4");
+        y=addPicsGrid(pdf,extraPhotos.slice(0,4),y,4);addFooter(pdf);page++;
+        if(photoCount>4){
+          pdf.addPage();y=15;
+          y=addHeader(pdf,"SELFIE PHOTOS PAGE 2 - MAX 4");
+          y=addPicsGrid(pdf,extraPhotos.slice(4,8),y,4);addFooter(pdf);page++;
+        }
+      }
+    }
+    pdf.save(fname);
+    alert("PDF DOWNLOAD HOYE GECHE - FINAL - KYC MULTIPLE + NO PASS TEXT + 2026-27 AY\nFile: "+fname)
+  }catch(err){
+    console.log(err);
+    alert("ERROR: "+err.message)
+  }
+}
+window.onload=function(){setTodayDate(); togglePerson(); togglePages(); toggleRole(); toggleForm16Ay(); toggleForm16AyCo(); toggleItrAyNew(); toggleItrAyCo();}
+</script>
+</body>
+</html>
